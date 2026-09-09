@@ -228,13 +228,17 @@ async def verify_invitation(
             detail="Esta invitación ha expirado.",
         )
     
-    return AcceptInvitationResponse(
-        message="Invitación válida",
-        success=True,
-        user_email=invitation.email,
-        user_id=0,  # No existe aún
-        role_name=invitation.role_name or "",
+    return InvitationStatusResponse(
         token=token,
+        is_valid=True,
+        is_expired=False,
+        is_accepted=False,
+        email=invitation.email,
+        full_name=invitation.full_name,
+        role_id=invitation.role_id or 0,
+        role_name=invitation.role_name,
+        message=invitation.message,
+        expires_at=invitation.expires_at,
     )
 
 

@@ -27,7 +27,7 @@ export const AcceptInvitationPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
-  const { loginWithToken, refreshUser } = useAuth();
+  const { loginWithToken } = useAuth();
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'success'>('loading');
   const [invitation, setInvitation] = useState<InvitationStatus | null>(null);
@@ -114,9 +114,8 @@ export const AcceptInvitationPage: React.FC = () => {
         });
         
         setStatus('success');
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+        window.history.replaceState({}, document.title, '/');
+        setTimeout(() => navigate('/'), 1200);
       } else {
         const errorData = await response.json();
         setError(errorData.detail || 'Error al aceptar la invitación.');

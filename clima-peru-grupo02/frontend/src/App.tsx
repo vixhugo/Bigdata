@@ -64,6 +64,7 @@ const SplashScreen: React.FC = () => (
 const AppRouter: React.FC = () => {
   const { status, isAdmin, isSuperAdmin } = useAuth();
   const { isGenerating: isPdfGenerating, generate: generatePdf } = usePdfExport();
+  const invitationToken = new URLSearchParams(window.location.search).get('token');
 
   const [view, setView] = useState<AppView>('landing');
   const [authPage, setAuthPage] = useState<AuthPage>('login');
@@ -168,14 +169,13 @@ const AppRouter: React.FC = () => {
 
   const featuredQuickCities = ['Lima', 'Arequipa', 'Cusco', 'Piura', 'Trujillo', 'Chiclayo', 'Iquitos', 'Huancayo', 'Puno', 'Tacna', 'Chimbote'];
 
-  // ── Pantalla de carga del auth ─────────────────────────────────────────────
-  if (status === 'loading') return <SplashScreen />;
-
-  const invitationToken = new URLSearchParams(window.location.search).get('token');
-
+  // Los enlaces de invitación son públicos y no deben esperar una sesión previa.
   if (invitationToken) {
     return <AcceptInvitationPage />;
   }
+
+  // ── Pantalla de carga del auth ─────────────────────────────────────────────
+  if (status === 'loading') return <SplashScreen />;
 
   if (view === 'landing') {
     return <ProjectLanding onOpenMeteoPeru={() => setView('app')} />;
