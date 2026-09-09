@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage';
 
 // ── Layout y páginas de administración ───────────────────────────────────────
 import { AdminLayout, AdminTab } from './components/admin/AdminLayout';
@@ -13,6 +14,7 @@ import { MembersPage } from './pages/admin/MembersPage';
 import { RolesPage } from './pages/admin/RolesPage';
 import { AuditPage } from './pages/admin/AuditPage';
 import { ProfilePage } from './pages/admin/ProfilePage';
+import { InvitationsPage } from './pages/admin/InvitationsPage';
 
 // ── Componentes de la app meteorológica ──────────────────────────────────────
 import { Navbar } from './components/Navbar';
@@ -30,6 +32,8 @@ import { CsvImporter } from './components/CsvImporter';
 import { SkeletonLoader } from './components/SkeletonLoader';
 import { Footer } from './components/Footer';
 import { Spinner } from './components/admin/ui';
+import PDFPreview from './components/PDFPreview';
+import { ProjectLanding } from './components/ProjectLanding';
 
 import { City, FullForecastResponse, DepartmentWeatherSummary, AlertsResponse } from './types/weather';
 import { weatherApi } from './services/api';
@@ -39,7 +43,7 @@ import { AlertCircle, Sparkles } from 'lucide-react';
 
 // ─── Tipos de vista de la app ─────────────────────────────────────────────────
 type AuthPage = 'login' | 'register' | 'forgot-password';
-type AppView = 'auth' | 'app' | 'admin';
+type AppView = 'landing' | 'auth' | 'app' | 'admin';
 
 // ─── Pantalla de carga inicial ────────────────────────────────────────────────
 const SplashScreen: React.FC = () => (
@@ -61,7 +65,7 @@ const AppRouter: React.FC = () => {
   const { status, isAdmin, isSuperAdmin } = useAuth();
   const { isGenerating: isPdfGenerating, generate: generatePdf } = usePdfExport();
 
-  const [view, setView] = useState<AppView>('app');
+  const [view, setView] = useState<AppView>('landing');
   const [authPage, setAuthPage] = useState<AuthPage>('login');
   const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
 
@@ -81,6 +85,10 @@ const AppRouter: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Estado para vista previa de PDF
+  const [showPdfPreview, setShowPdfPreview] = useState<boolean>(false);
+  const [pdfOptions, setPdfOptions] = useState<any>(null);
 
   // Sincronizar tema
   useEffect(() => {
@@ -163,8 +171,18 @@ const AppRouter: React.FC = () => {
   // ── Pantalla de carga del auth ─────────────────────────────────────────────
   if (status === 'loading') return <SplashScreen />;
 
-  // ── Vista de autenticación ─────────────────────────────────────────────────
-  if (view === 'auth' || status === 'unauthenticated') {
+  const invitationToken = new URLSearchParams(window.location.search).get('token');
+
+  if (invitationToken) {
+    return <AcceptInvitationPage />;
+  }
+
+  if (view === 'landing') {
+    return <ProjectLanding onOpenMeteoPeru={() => setView('app')} />;
+  }
+
+  // ── Vista de autenticación (solo cuando el usuario quiere iniciar sesión) ───
+  if (view === 'auth') {
     if (authPage === 'register')       return <RegisterPage onNavigate={handleAuthNavigate} />;
     if (authPage === 'forgot-password') return <ForgotPasswordPage onNavigate={handleAuthNavigate} />;
     return <LoginPage onNavigate={handleAuthNavigate} />;
@@ -180,6 +198,7 @@ const AppRouter: React.FC = () => {
         {adminTab === 'roles'     && <RolesPage />}
         {adminTab === 'audit'     && <AuditPage />}
         {adminTab === 'profile'   && <ProfilePage />}
+        {adminTab === 'invitations' && <InvitationsPage />}
       </AdminLayout>
     );
   }
@@ -204,7 +223,8 @@ const AppRouter: React.FC = () => {
               forecast.hourly,
               forecast.daily,
             );
-            await generatePdf(opts);
+            setPdfOptions(opts);
+            setShowPdfPreview(true);
           }}
         theme={theme}
         onToggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
@@ -273,6 +293,22 @@ const AppRouter: React.FC = () => {
       </main>
 
       <Footer />
+      
+      {/* Vista previa de PDF */}
+      {showPdfPreview && pdfOptions && (
+        <PDFPreview
+          options={pdfOptions}
+          onCancel={() => {
+            setShowPdfPreview(false);
+            setPdfOptions(null);
+          }}
+          onDownload={async () => {
+            await generatePdf(pdfOptions);
+            setShowPdfPreview(false);
+            setPdfOptions(null);
+          }}
+        />
+      )}
     </div>
   );
 };

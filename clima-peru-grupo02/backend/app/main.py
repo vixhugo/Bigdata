@@ -26,6 +26,9 @@ from app.routers.users_admin import router as users_admin_router
 from app.routers.roles_admin import router as roles_admin_router
 from app.routers.audit_admin import router as audit_admin_router
 from app.routers.admin_dashboard import router as admin_dashboard_router
+from app.routers.invitations import router as invitations_router
+from app.routers.data_file import router as data_file_router
+from app.routers.climate_history import router as climate_history_router
 
 
 @asynccontextmanager
@@ -36,6 +39,9 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_auth(db)
+        # 3. Sembrar datos históricos del clima (Big Data)
+        from app.seed.seed_climate_history import seed_climate_history
+        seed_climate_history(db)
     finally:
         db.close()
     yield
@@ -80,6 +86,9 @@ for prefix in [settings.API_V1_STR, ""]:
     app.include_router(roles_admin_router, prefix=prefix)
     app.include_router(audit_admin_router, prefix=prefix)
     app.include_router(admin_dashboard_router, prefix=prefix)
+    app.include_router(invitations_router, prefix=prefix)
+    app.include_router(data_file_router, prefix=prefix)
+    app.include_router(climate_history_router, prefix=prefix)
 
 
 # ─── Rutas base ────────────────────────────────────────────────────────────────

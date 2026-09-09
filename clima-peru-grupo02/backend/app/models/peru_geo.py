@@ -32,3 +32,4 @@ class City(Base):
     is_capital = Column(Boolean, default=False)
 
     department = relationship("Department", back_populates="cities")
+    climate_history = relationship("ClimateHistory", back_populates="city", cascade="all, delete-orphan")

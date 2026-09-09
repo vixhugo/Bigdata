@@ -1,7 +1,7 @@
 /**
  * usePdfExport.ts
- * Hook que encapsula el estado de generación de PDF y expone
- * un trigger tipado que acepta las opciones del generador.
+ * Hook que encapsula el estado de generación de PDF con vista previa.
+ * Primero muestra la vista previa, luego permite descargar.
  */
 import { useState, useCallback } from 'react';
 import { PdfGenerator, PdfReportOptions } from '../services/pdfGenerator';
@@ -36,3 +36,9 @@ export function usePdfExport(): UsePdfExportReturn {
 
   return { isGenerating, error, generate, clearError };
 }
+
+// Hook alternativo con vista previa
+import { usePdfPreview } from './usePdfPreview';
+
+// Exportar ambos hooks
+export { usePdfPreview };

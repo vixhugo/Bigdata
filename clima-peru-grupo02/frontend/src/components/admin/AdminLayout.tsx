@@ -2,11 +2,11 @@ import React, { useState, ReactNode } from 'react';
 import {
   LayoutDashboard, Users, Shield, ClipboardList, LogOut,
   Menu, X, ChevronRight, Bell, UserCircle2, Settings,
-  ShieldCheck, Activity,
+  ShieldCheck, Activity, Mail,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-export type AdminTab = 'dashboard' | 'members' | 'roles' | 'audit' | 'profile';
+export type AdminTab = 'dashboard' | 'members' | 'roles' | 'audit' | 'profile' | 'invitations';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -34,6 +34,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'members',    label: 'Miembros',     icon: Users,           permission: 'users:view' },
     { id: 'roles',      label: 'Roles y Permisos', icon: Shield,      permission: 'roles:view' },
     { id: 'audit',      label: 'Auditoría',    icon: ClipboardList,   permission: 'audit:view' },
+    { id: 'invitations', label: 'Invitaciones', icon: Mail,           permission: 'roles:view' },
     { id: 'profile',    label: 'Mi Perfil',    icon: UserCircle2,     permission: undefined },
   ];
 

@@ -299,3 +299,31 @@ class AuditService:
             ip_address=ip_address,
             details={"added": added, "removed": removed}
         )
+
+
+# ─── Atajo de función (no clase) para facilitar importaciones ─────────────────
+
+def create_audit_log(
+    db: Session,
+    action: str,
+    category: str = "general",
+    user: Optional[User] = None,
+    user_id: Optional[int] = None,
+    user_email: Optional[str] = None,
+    user_name: Optional[str] = None,
+    target_type: Optional[str] = None,
+    target_id: Optional[str] = None,
+    target_display: Optional[str] = None,
+    details: Optional[Any] = None,
+    status: str = "success",
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None,
+) -> AuditLog:
+    """Wrapper de AuditService.log para usar sin el prefijo de clase."""
+    return AuditService.log(
+        db, action=action, category=category,
+        user=user, user_id=user_id, user_email=user_email, user_name=user_name,
+        target_type=target_type, target_id=target_id, target_display=target_display,
+        details=details, status=status,
+        ip_address=ip_address, user_agent=user_agent
+    )

@@ -3,7 +3,6 @@ Servicio de autenticación: hashing, JWT, login, registro, recuperación de cont
 Bloqueo temporal tras múltiples intentos fallidos.
 """
 from __future__ import annotations
-import os
 import secrets
 import string
 from datetime import datetime, timedelta, timezone
@@ -24,12 +23,12 @@ from app.schemas.auth import (
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT — usa variable de entorno o clave generada (solo desarrollo)
-SECRET_KEY: str = os.getenv(
-    "JWT_SECRET_KEY",
-    "c1ima-peru-jwt-secret-!CHANGE-IN-PROD!-$(secrets.token_hex(32))"
-)
+SECRET_KEY: str = settings.JWT_SECRET_KEY
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ACCESS_TOKEN_EXPIRE_MINUTES: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+
+if settings.APP_ENV.lower() in {"production", "prod"} and "CHANGE-IN-PROD" in SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY debe configurarse antes de iniciar en producción.")
 
 # Política de bloqueo
 MAX_FAILED_ATTEMPTS = 5

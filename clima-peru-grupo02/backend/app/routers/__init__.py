@@ -7,7 +7,15 @@ from app.routers import (
     history,
     rankings,
     export,
-    favorites
+    favorites,
+    invitations,
+    auth,
+    users_admin,
+    roles_admin,
+    audit_admin,
+    admin_dashboard,
+    data_file,
+    climate_history
 )
 
 __all__ = [
@@ -19,5 +27,13 @@ __all__ = [
     "history",
     "rankings",
     "export",
-    "favorites"
+    "favorites",
+    "invitations",
+    "auth",
+    "users_admin",
+    "roles_admin",
+    "audit_admin",
+    "admin_dashboard",
+    "data_file",
+    "climate_history"
 ]
