@@ -5,6 +5,7 @@ Usa SMTP para enviar emails.
 from __future__ import annotations
 from datetime import datetime
 from typing import Optional
+import os
 import smtplib
 from html import escape
 from email.mime.text import MIMEText
@@ -23,8 +24,12 @@ class EmailService:
         self.smtp_user = settings.SMTP_USER
         self.smtp_password = settings.SMTP_PASSWORD
         self.smtp_from = settings.SMTP_FROM_EMAIL or settings.SMTP_USER
-        self.frontend_url = settings.FRONTEND_URL
         self.is_development = settings.APP_ENV.lower() in {"development", "dev", "local"}
+        configured_frontend_url = settings.FRONTEND_URL.rstrip("/")
+        vercel_url = os.getenv("VERCEL_URL", "").strip().rstrip("/")
+        if not self.is_development and configured_frontend_url.startswith("http://localhost") and vercel_url:
+            configured_frontend_url = f"https://{vercel_url}"
+        self.frontend_url = configured_frontend_url
         
         self.is_configured = bool(
             self.smtp_host and self.smtp_user and self.smtp_password
