@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import os
 from app.config import settings
 from app.database import Base, engine
 from app.seed.seed_data import init_db_and_seed
@@ -33,6 +34,10 @@ from app.routers.climate_history import router as climate_history_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if os.getenv("VERCEL") == "1":
+        yield
+        return
+
     # 1. Crear tablas y sembrar datos geográficos del Perú
     init_db_and_seed()
     # 2. Sembrar roles, permisos y super admin

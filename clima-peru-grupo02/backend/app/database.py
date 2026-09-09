@@ -1,4 +1,6 @@
+import os
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.config import settings
 
@@ -8,12 +10,14 @@ if database_url.startswith("postgresql://"):
 
 is_sqlite = database_url.startswith("sqlite")
 connect_args = {"check_same_thread": False} if is_sqlite else {"sslmode": "require"}
+is_serverless = os.getenv("VERCEL") == "1"
 
 engine = create_engine(
     database_url,
     connect_args=connect_args,
     echo=settings.DATABASE_ECHO,
     pool_pre_ping=True,
+    poolclass=NullPool if is_serverless else None,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
